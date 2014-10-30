@@ -467,6 +467,7 @@ Namespace MediaContainers
         Private _studios As New List(Of String)
         Private _directors As New List(Of String)
         Private _credits As New List(Of String)
+        Private _tags As New List(Of String)
         Private _tagline As String
         Private _outline As String
         Private _plot As String
@@ -1512,6 +1513,13 @@ Namespace MediaContainers
             End If
         End Sub
 
+        Public Sub RemoveTag(ByVal TagID As Long)
+            Dim tTag = From bTag As [Set] In Tags Where bTag.ID = TagID
+            If tTag.Count > 0 Then
+                Tags.Remove(tTag(0))
+            End If
+        End Sub
+
 #End Region 'Methods
     End Class
 
@@ -2197,7 +2205,7 @@ Namespace MediaContainers
 
         Private _id As Long
         Private _order As String
-        Private _set As String
+        Private _setname As String
         Private _tmdbcolid As String
 
 #End Region 'Fields
@@ -2259,17 +2267,17 @@ Namespace MediaContainers
         <XmlIgnore()> _
         Public ReadOnly Property SetSpecified() As Boolean
             Get
-                Return Not String.IsNullOrEmpty(Me._set)
+                Return Not String.IsNullOrEmpty(Me._setname)
             End Get
         End Property
 
         <XmlText()> _
         Public Property [Set]() As String
             Get
-                Return _set
+                Return _setname
             End Get
             Set(ByVal value As String)
-                _set = value
+                _setname = value
             End Set
         End Property
 
@@ -2279,9 +2287,69 @@ Namespace MediaContainers
 
         Public Sub Clear()
             _id = -1
-            _set = String.Empty
+            _setname = String.Empty
             _order = String.Empty
             _tmdbcolid = String.Empty
+        End Sub
+
+#End Region 'Methods
+
+    End Class
+
+    <Serializable()> _
+    Public Class [Tag]
+
+#Region "Fields"
+
+        Private _id As Long
+        Private _tagname As String
+
+#End Region 'Fields
+
+#Region "Constructors"
+
+        Public Sub New()
+            Me.Clear()
+        End Sub
+
+#End Region 'Constructors
+
+#Region "Properties"
+
+        <XmlIgnore()> _
+        Public Property ID() As Long
+            Get
+                Return _id
+            End Get
+            Set(ByVal value As Long)
+                _id = value
+            End Set
+        End Property
+
+        <XmlIgnore()> _
+        Public ReadOnly Property TagSpecified() As Boolean
+            Get
+                Return Not String.IsNullOrEmpty(Me._tagname)
+            End Get
+        End Property
+
+        <XmlText()> _
+        Public Property [Tag]() As String
+            Get
+                Return _tagname
+            End Get
+            Set(ByVal value As String)
+                _tagname = value
+            End Set
+        End Property
+
+#End Region 'Properties
+
+#Region "Methods"
+
+        Public Sub Clear()
+            _id = -1
+            _tagname = String.Empty
         End Sub
 
 #End Region 'Methods

@@ -380,7 +380,7 @@ Public Class Database
             Dim SQLtransaction As SQLite.SQLiteTransaction = Nothing
             If Not BatchMode Then SQLtransaction = _myvideosDBConn.BeginTransaction()
             Using SQLcommand As SQLite.SQLiteCommand = _myvideosDBConn.CreateCommand()
-                SQLcommand.CommandText = String.Concat("DELETE FROM movies WHERE id = ", ID, ";")
+                SQLcommand.CommandText = String.Concat("DELETE FROM Movies WHERE ID = ", ID, ";")
                 SQLcommand.ExecuteNonQuery()
                 SQLcommand.CommandText = String.Concat("DELETE FROM MoviesAStreams WHERE MovieID = ", ID, ";")
                 SQLcommand.ExecuteNonQuery()
@@ -395,6 +395,8 @@ Public Class Database
                 SQLcommand.CommandText = String.Concat("DELETE FROM MoviesFanart WHERE MovieID = ", ID, ";")
                 SQLcommand.ExecuteNonQuery()
                 SQLcommand.CommandText = String.Concat("DELETE FROM MoviesSets WHERE MovieID = ", ID, ";")
+                SQLcommand.ExecuteNonQuery()
+                SQLcommand.CommandText = String.Concat("DELETE FROM MoviesTags WHERE MovieID = ", ID, ";")
                 SQLcommand.ExecuteNonQuery()
             End Using
             If Not BatchMode Then SQLtransaction.Commit()
@@ -451,9 +453,37 @@ Public Class Database
                 tmpImage.DeleteMovieSetPoster(MovieSet)
             End If
 
+            'remove the movieset and still existing moviessets entries
             Using SQLcommand As SQLite.SQLiteCommand = _myvideosDBConn.CreateCommand()
-                SQLcommand.CommandText = String.Concat("SELECT MovieID, SetID, SetOrder FROM MoviesSets ", _
-                                                       "WHERE SetID = ", ID, ";")
+                SQLcommand.CommandText = String.Concat("DELETE FROM Sets WHERE ID = ", ID, ";")
+                SQLcommand.ExecuteNonQuery()
+                SQLcommand.CommandText = String.Concat("DELETE FROM MoviesSets WHERE SetID = ", ID, ";")
+                SQLcommand.ExecuteNonQuery()
+            End Using
+            If Not BatchMode Then SQLtransaction.Commit()
+        Catch ex As Exception
+            logger.Error(New StackFrame().GetMethod().Name, ex)
+            Return False
+        End Try
+        Return True
+    End Function
+
+    ''' <summary>
+    ''' Remove all information related to a tag name from the database.
+    ''' </summary>
+    ''' <param name="ID">ID of the tag to remove, as stored in the database.</param>
+    ''' <param name="BatchMode">Is this function already part of a transaction?</param>
+    ''' <returns>True if successful, false if deletion failed.</returns>
+    Public Function DeleteTagFromDB(ByVal ID As Long, Optional ByVal BatchMode As Boolean = False) As Boolean
+        Try
+            'first get a list of all movies in the movieset to remove the movieset information from NFO
+            Dim moviesToSave As New List(Of Structures.DBMovie)
+
+            Dim SQLtransaction As SQLite.SQLiteTransaction = Nothing
+            If Not BatchMode Then SQLtransaction = _myvideosDBConn.BeginTransaction()
+            Using SQLcommand As SQLite.SQLiteCommand = _myvideosDBConn.CreateCommand()
+                SQLcommand.CommandText = String.Concat("SELECT MovieID, TagID FROM MoviesTags ", _
+                                                       "WHERE TagID = ", ID, ";")
                 Using SQLreader As SQLite.SQLiteDataReader = SQLcommand.ExecuteReader()
                     While SQLreader.Read
                         Dim movie As New Structures.DBMovie
@@ -463,11 +493,19 @@ Public Class Database
                 End Using
             End Using
 
+            'remove the movieset from movie and write new movie NFOs
+            If moviesToSave.Count > 0 Then
+                For Each movie In moviesToSave
+                    movie.Movie.RemoveTag(ID)
+                    SaveMovieToDB(movie, False, BatchMode, True)
+                Next
+            End If
+
             'remove the movieset and still existing moviessets entries
             Using SQLcommand As SQLite.SQLiteCommand = _myvideosDBConn.CreateCommand()
-                SQLcommand.CommandText = String.Concat("DELETE FROM Sets WHERE ID = ", ID, ";")
+                SQLcommand.CommandText = String.Concat("DELETE FROM Tags WHERE ID = ", ID, ";")
                 SQLcommand.ExecuteNonQuery()
-                SQLcommand.CommandText = String.Concat("DELETE FROM MoviesSets WHERE SetID = ", ID, ";")
+                SQLcommand.CommandText = String.Concat("DELETE FROM MoviesTags WHERE TagID = ", ID, ";")
                 SQLcommand.ExecuteNonQuery()
             End Using
             If Not BatchMode Then SQLtransaction.Commit()
@@ -971,6 +1009,7 @@ Public Class Database
                 End Using
             End Using
 
+            'Sets
             Using SQLcommand As SQLite.SQLiteCommand = _myvideosDBConn.CreateCommand()
                 SQLcommand.CommandText = String.Concat("SELECT MS.MovieID, MS.SetID, MS.SetOrder, SE.ID, SE.SetName FROM MoviesSets ", _
                                                        "AS MS INNER JOIN Sets AS SE ON (MS.SetID = SE.ID) WHERE MS.MovieID = ", MovieID, ";")
@@ -982,6 +1021,21 @@ Public Class Database
                         If Not DBNull.Value.Equals(SQLreader("SetOrder")) Then sets.Order = SQLreader("SetOrder").ToString
                         If Not DBNull.Value.Equals(SQLreader("SetName")) Then sets.Set = SQLreader("SetName").ToString
                         _movieDB.Movie.Sets.Add(sets)
+                    End While
+                End Using
+            End Using
+
+            'Tags
+            Using SQLcommand As SQLite.SQLiteCommand = _myvideosDBConn.CreateCommand()
+                SQLcommand.CommandText = String.Concat("SELECT MT.MovieID, MT.TagID, TA.ID, TA.TagName FROM MoviesTags ", _
+                                                       "AS MT INNER JOIN Tags AS TA ON (MT.TagID = TA.ID) WHERE MA.MovieID = ", MovieID, ";")
+                Using SQLreader As SQLite.SQLiteDataReader = SQLcommand.ExecuteReader()
+                    Dim tags As MediaContainers.Tag
+                    While SQLreader.Read
+                        tags = New MediaContainers.Tag
+                        If Not DBNull.Value.Equals(SQLreader("TagID")) Then tags.ID = Convert.ToInt64(SQLreader("TagID"))
+                        If Not DBNull.Value.Equals(SQLreader("TagName")) Then tags.Tag = SQLreader("TagName").ToString
+                        _movieDB.Movie.Tags.Add(tags)
                     End While
                 End Using
             End Using

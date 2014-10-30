@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<CommandFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <transaction name="MyVideosDBSQL_v2_to_v3">
+    <command type="DB">
+      <description>1</description>
+      <execute>
+        CREATE TABLE Tags(
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        TagName TEXT NOT NULL
+        );
+      </execute>
+    </command>
+    <command type="DB">
+      <description>2</description>
+      <execute>
+        CREATE TABLE MoviesTags(
+        MovieID INTEGER NOT NULL,
+        TagID INTEGER NOT NULL,
+        PRIMARY KEY (MovieID,TagID)
+        );
+      </execute>
+    </command>
+  </transaction>
+  <noTransaction type="">
+  </noTransaction>
+<!-- 
+  <noTransaction type="DB">
+    <description>nd1</description>
+    <execute>ne1</execute>
+  </noTransaction>
+-->
+</CommandFile>
