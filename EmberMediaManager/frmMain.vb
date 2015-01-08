@@ -6898,9 +6898,6 @@ doCancel:
                 e.Handled = True
             End If
         End If
-
-        'Me.tpMovies.Text = String.Format("{0} ({1})", Master.eLang.GetString(36, "Movies"), Me.dgvMovies.RowCount)
-
     End Sub
 
     Private Sub dgvMovies_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles dgvMovies.KeyDown
@@ -6964,6 +6961,14 @@ doCancel:
 
     Private Sub dgvMovies_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles dgvMovies.Resize
         ResizeMoviesList()
+    End Sub
+
+    Private Sub dgvMovies_RowsRemoved(sender As Object, e As DataGridViewRowsRemovedEventArgs) Handles dgvMovies.RowsRemoved
+        Me.SetMovieCount()
+    End Sub
+
+    Private Sub dgvMovies_RowsAdded(sender As Object, e As DataGridViewRowsAddedEventArgs) Handles dgvMovies.RowsAdded
+        Me.SetMovieCount()
     End Sub
 
     Private Sub dgvMovies_Sorted(ByVal sender As Object, ByVal e As System.EventArgs) Handles dgvMovies.Sorted
@@ -7360,9 +7365,6 @@ doCancel:
                 e.Handled = True
             End If
         End If
-
-        Me.tpMovieSets.Text = String.Format("{0} ({1})", Master.eLang.GetString(366, "Sets"), Me.dgvMovieSets.RowCount)
-
     End Sub
 
     Private Sub dgvMovieSets_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles dgvMovieSets.KeyDown
@@ -7424,6 +7426,14 @@ doCancel:
 
     Private Sub dgvMovieSets_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles dgvMovieSets.Resize
         ResizeMovieSetsList()
+    End Sub
+
+    Private Sub dgvMovieSets_RowsRemoved(sender As Object, e As DataGridViewRowsRemovedEventArgs) Handles dgvMovieSets.RowsRemoved
+        Me.SetMovieSetCount()
+    End Sub
+
+    Private Sub dgvMovieSets_RowsAdded(sender As Object, e As DataGridViewRowsAddedEventArgs) Handles dgvMovieSets.RowsAdded
+        Me.SetMovieSetCount()
     End Sub
 
     Private Sub dgvMovieSets_Sorted(ByVal sender As Object, ByVal e As System.EventArgs) Handles dgvMovieSets.Sorted
@@ -9310,8 +9320,6 @@ doCancel:
             Me.EnableFilters_Movies(True)
             Me.EnableFilters_MovieSets(True)
             Me.EnableFilters_Shows(True)
-            Me.SetMovieCount()
-            Me.SetMovieSetCount()
             Me.SetTVCount()
             If doMovies Then
                 Me.RestoreFilter_Movies()
@@ -16104,7 +16112,6 @@ doCancel:
                     Me.txtSearchMovies.Focus()
                 End If
             End If
-
         Catch ex As Exception
             logger.Error(New StackFrame().GetMethod().Name, ex)
         End Try
@@ -17699,15 +17706,8 @@ doCancel:
     ''' </summary>
     ''' <remarks></remarks>
     Private Sub SetMovieCount()
-        Dim MovieCount As Integer = 0
-
-        Using SQLCommand As SQLite.SQLiteCommand = Master.DB.MyVideosDBConn.CreateCommand()
-            SQLCommand.CommandText = "SELECT COUNT(ID) AS COUNT FROM Movies"
-            MovieCount = Convert.ToInt32(SQLCommand.ExecuteScalar)
-        End Using
-
-        If MovieCount > 0 Then
-            Me.tpMovies.Text = String.Format("{0} ({1})", Master.eLang.GetString(36, "Movies"), MovieCount)
+        If Me.dgvMovies.RowCount > 0 Then
+            Me.tpMovies.Text = String.Format("{0} ({1})", Master.eLang.GetString(36, "Movies"), Me.dgvMovies.RowCount)
         Else
             Me.tpMovies.Text = Master.eLang.GetString(36, "Movies")
         End If
@@ -17717,15 +17717,8 @@ doCancel:
     ''' </summary>
     ''' <remarks></remarks>
     Private Sub SetMovieSetCount()
-        Dim MovieSetCount As Integer = 0
-
-        Using SQLCommand As SQLite.SQLiteCommand = Master.DB.MyVideosDBConn.CreateCommand()
-            SQLCommand.CommandText = "SELECT COUNT(ID) AS COUNT FROM Sets"
-            MovieSetCount = Convert.ToInt32(SQLCommand.ExecuteScalar)
-        End Using
-
-        If MovieSetCount > 0 Then
-            Me.tpMovieSets.Text = String.Format("{0} ({1})", Master.eLang.GetString(366, "Sets"), MovieSetCount)
+        If Me.dgvMovieSets.RowCount > 0 Then
+            Me.tpMovieSets.Text = String.Format("{0} ({1})", Master.eLang.GetString(366, "Sets"), Me.dgvMovieSets.RowCount)
         Else
             Me.tpMovieSets.Text = Master.eLang.GetString(366, "Sets")
         End If
