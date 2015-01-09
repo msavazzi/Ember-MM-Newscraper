@@ -19053,7 +19053,7 @@ doCancel:
         Me.LoadMedia(New Structures.Scans With {.Movies = True}, SourceName)
     End Sub
 
-    Private Sub tabsMain_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles tcMain.SelectedIndexChanged
+    Private Sub tcMain_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles tcMain.SelectedIndexChanged
         Me.ClearInfo()
         Me.ShowNoInfo(False)
         ModulesManager.Instance.RuntimeObjects.MediaTabSelected = tcMain.SelectedIndex
@@ -19066,6 +19066,8 @@ doCancel:
                 Me.pnlFilter_Movies.Visible = True
                 Me.pnlFilter_MovieSets.Visible = False
                 Me.pnlFilter_Shows.Visible = False
+                Me.pnlFilterMissingItems_MovieSets.Visible = False
+                Me.pnlFilterMissingItems_Shows.Visible = False
                 Me.pnlListTop.Height = 56
                 Me.pnlSearchMovies.Visible = True
                 Me.pnlSearchMovieSets.Visible = False
@@ -19102,6 +19104,8 @@ doCancel:
                 Me.pnlFilter_Movies.Visible = False
                 Me.pnlFilter_MovieSets.Visible = True
                 Me.pnlFilter_Shows.Visible = False
+                Me.pnlFilterMissingItems_Movies.Visible = False
+                Me.pnlFilterMissingItems_Shows.Visible = False
                 Me.pnlListTop.Height = 56
                 Me.pnlSearchMovies.Visible = False
                 Me.pnlSearchMovieSets.Visible = True
@@ -19142,6 +19146,8 @@ doCancel:
                 Me.pnlFilter_Movies.Visible = False
                 Me.pnlFilter_MovieSets.Visible = False
                 Me.pnlFilter_Shows.Visible = True
+                Me.pnlFilterMissingItems_Movies.Visible = False
+                Me.pnlFilterMissingItems_MovieSets.Visible = False
                 Me.pnlListTop.Height = 56
                 Me.pnlSearchMovies.Visible = False
                 Me.pnlSearchMovieSets.Visible = False
