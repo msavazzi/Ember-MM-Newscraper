@@ -274,8 +274,10 @@ Partial Public Class clsXMLSettings
     Private _movietraileroverwrite As Boolean
     Private _movietrailerminvideoqual As Enums.TrailerVideoQuality
     Private _movietrailerprefvideoqual As Enums.TrailerVideoQuality
+    Private _ommdummybackgroundcolor As Integer
     Private _ommdummyformat As Integer
     Private _ommdummytagline As String
+    Private _ommdummytextcolor As Integer
     Private _ommdummytop As String
     Private _ommdummyusebackground As Boolean
     Private _ommdummyusefanart As Boolean
@@ -2740,6 +2742,15 @@ Partial Public Class clsXMLSettings
         End Set
     End Property
 
+    Public Property OMMDummyBackgroundColor() As Integer
+        Get
+            Return Me._ommdummybackgroundcolor
+        End Get
+        Set(ByVal value As Integer)
+            Me._ommdummybackgroundcolor = value
+        End Set
+    End Property
+
     Public Property OMMDummyFormat() As Integer
         Get
             Return Me._ommdummyformat
@@ -2755,6 +2766,15 @@ Partial Public Class clsXMLSettings
         End Get
         Set(ByVal value As String)
             Me._ommdummytagline = value
+        End Set
+    End Property
+
+    Public Property OMMDummyTextColor() As Integer
+        Get
+            Return Me._ommdummytextcolor
+        End Get
+        Set(ByVal value As Integer)
+            Me._ommdummytextcolor = value
         End Set
     End Property
 

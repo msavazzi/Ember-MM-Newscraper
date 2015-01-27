@@ -1964,6 +1964,15 @@ Public Class Settings
         End Set
     End Property
 
+    Public Property OMMDummyBackgroundColor() As Integer
+        Get
+            Return Settings._XMLSettings.OMMDummyBackgroundColor
+        End Get
+        Set(ByVal value As Integer)
+            Settings._XMLSettings.OMMDummyBackgroundColor = value
+        End Set
+    End Property
+
     Public Property OMMDummyFormat() As Integer
         Get
             Return Settings._XMLSettings.OMMDummyFormat
@@ -1979,6 +1988,15 @@ Public Class Settings
         End Get
         Set(ByVal value As String)
             Settings._XMLSettings.OMMDummyTagline = value
+        End Set
+    End Property
+
+    Public Property OMMDummyTextColor() As Integer
+        Get
+            Return Settings._XMLSettings.OMMDummyTextColor
+        End Get
+        Set(ByVal value As Integer)
+            Settings._XMLSettings.OMMDummyTextColor = value
         End Set
     End Property
 
@@ -5935,8 +5953,10 @@ Public Class Settings
         Me.MovieTrailerOverwrite = True
         Me.MovieTrailerMinVideoQual = Enums.TrailerVideoQuality.All
         Me.MovieTrailerPrefVideoQual = Enums.TrailerVideoQuality.All
+        Me.OMMDummyBackgroundColor = -16777216
         Me.OMMDummyFormat = 0
         Me.OMMDummyTagline = String.Empty
+        Me.OMMDummyTextColor = -1
         Me.OMMDummyTop = String.Empty
         Me.OMMDummyUseBackground = True
         Me.OMMDummyUseFanart = True

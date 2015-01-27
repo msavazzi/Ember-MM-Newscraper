@@ -725,6 +725,17 @@ Public Class Enums
         ShowPoster = 22
         ShowTheme = 23
     End Enum
+
+    Public Enum OfflineMoviePathStatus
+        Exist = 0
+        NotValid = 1
+        Valid = 2
+    End Enum
+
+    Public Enum OfflineMovieScrapingStatus
+        NotScraped = 0
+        Scraped = 1
+    End Enum
     ''' <summary>
     ''' Enum representing possible scraper capabilities
     ''' </summary>
