@@ -1467,21 +1467,25 @@ Public Class Functions
     ''' <remarks></remarks>
     Public Shared Function GetSeasonDirectoryFromShowPath(ByVal ShowPath As String, ByVal iSeason As Integer) As String
         If Directory.Exists(ShowPath) Then
+            Dim SeasonFolderPattern As New List(Of String)
+            SeasonFolderPattern.Add("(?<season>specials?)$")
+            SeasonFolderPattern.Add("^(s(eason)?)?[\W_]*(?<season>[0-9]+)$")
+            SeasonFolderPattern.Add("[^\w]s(eason)?[\W_]*(?<season>[0-9]+)")
             Dim dInfo As New DirectoryInfo(ShowPath)
 
-            'For Each sDir As DirectoryInfo In dInfo.GetDirectories
-            '    For Each rShow As Settings.regexp In Master.eSettings.TVShowMatching.Where(Function(s) s.SeasonFromDirectory = True)
-            '        For Each sMatch As Match In Regex.Matches(FileUtils.Common.GetDirectory(sDir.FullName), rShow.SeasonRegex, RegexOptions.IgnoreCase)
-            '            Try
-            '                If (IsNumeric(sMatch.Groups("season").Value) AndAlso iSeason = Convert.ToInt32(sMatch.Groups("season").Value)) OrElse (Regex.IsMatch(sMatch.Groups("season").Value, "specials?", RegexOptions.IgnoreCase) AndAlso iSeason = 0) Then
-            '                    Return sDir.FullName
-            '                End If
-            '            Catch ex As Exception
-            '                logger.Error(New StackFrame().GetMethod().Name & vbTab & " Failed to determine path for season " & iSeason & " in path: " & ShowPath, ex)
-            '            End Try
-            '        Next
-            '    Next
-            'Next
+            For Each sDir As DirectoryInfo In dInfo.GetDirectories
+                For Each pattern In SeasonFolderPattern
+                    For Each sMatch As Match In Regex.Matches(FileUtils.Common.GetDirectory(sDir.FullName), pattern, RegexOptions.IgnoreCase)
+                        Try
+                            If (IsNumeric(sMatch.Groups("season").Value) AndAlso iSeason = Convert.ToInt32(sMatch.Groups("season").Value)) OrElse (Regex.IsMatch(sMatch.Groups("season").Value, "specials?", RegexOptions.IgnoreCase) AndAlso iSeason = 0) Then
+                                Return sDir.FullName
+                            End If
+                        Catch ex As Exception
+                            logger.Error(New StackFrame().GetMethod().Name & vbTab & " Failed to determine path for season " & iSeason & " in path: " & ShowPath, ex)
+                        End Try
+                    Next
+                Next
+            Next
         End If
         'no matches
         Return String.Empty
@@ -1505,9 +1509,13 @@ Public Class Functions
     ''' <remarks></remarks>
     Public Shared Function IsSeasonDirectory(ByVal sPath As String) As Boolean
         'TODO Warning - Potential for false positives and false negatives as paths can be defined in different ways to arrive at the same destination
-        'For Each rShow As Settings.regexp In Master.eSettings.TVShowMatching.Where(Function(s) s.SeasonFromDirectory = True)
-        '    If Regex.IsMatch(FileUtils.Common.GetDirectory(sPath), rShow.SeasonRegex, RegexOptions.IgnoreCase) Then Return True
-        'Next
+        Dim SeasonFolderPattern As New List(Of String)
+        SeasonFolderPattern.Add("(?<season>specials?)$")
+        SeasonFolderPattern.Add("^(s(eason)?)?[\W_]*(?<season>[0-9]+)$")
+        SeasonFolderPattern.Add("[^\w]s(eason)?[\W_]*(?<season>[0-9]+)")
+        For Each pattern In SeasonFolderPattern
+            If Regex.IsMatch(FileUtils.Common.GetDirectory(sPath), pattern, RegexOptions.IgnoreCase) Then Return True
+        Next
         'no matches
         Return False
     End Function
